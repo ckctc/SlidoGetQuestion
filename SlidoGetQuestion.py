@@ -7,28 +7,31 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
 import tkinter as tk
+from tkinter import simpledialog
 import tkinter.font as tkFont
+
+from PIL import Image, ImageTk
 
 import textwrap
 
 root = tk.Tk()
 root.title('Slido Questions')
-root.attributes('-transparentcolor', 'green')
 
 MAX_QUESTIONS = 10
 
 BOX_WIDTH = 280
 BOX_HEIGHT = 60
-BOX_FILL_COLOR = 'white'
+BOX_FILL_COLOR = 'black'
 BOX_OUTLINE_COLOR = 'green'
 BOX_SPACING = 10
 
 WINDOW_WIDTH = 300
 WINDOW_HEIGHT = 705
 
-font_author = tkFont.Font(family='Noto Sans TC', size=8)
-font_content = tkFont.Font(family='微軟正黑體', size=12, weight='bold')
-font_vote = tkFont.Font(family='Noto Sans TC', size=12)
+FILL_COLOR = 'white'
+AUTHOR_FONT = tkFont.Font(family='微軟正黑體', size=8)
+CONTENT_FONT = tkFont.Font(family='微軟正黑體', size=12, weight='bold')
+VOTE_FONT = tkFont.Font(family='微軟正黑體', size=12)
 
 current_questions = []
 
@@ -39,7 +42,9 @@ chrome_options = Options()
 chrome_options.add_argument('--headless')
 driver = webdriver.Chrome(options=chrome_options)
 driver.implicitly_wait(5)
-driver.get('https://app.sli.do/event/fHCaUDHRvdDdVFAQt8ABnv/live/questions')
+
+url = simpledialog.askstring("Slido URL", "Enter the Slido URL:")
+driver.get(url)
 
 
 def click_Recent_tab(driver):
@@ -106,13 +111,13 @@ def update_questions():
         box_height = 50 + 20 * num_lines
 
         box = canvas.create_rectangle(
-            10, y, 10+BOX_WIDTH, y+box_height, fill=BOX_FILL_COLOR, outline='green')
+            10, y, 10+BOX_WIDTH, y+box_height, fill=BOX_FILL_COLOR, outline=BOX_OUTLINE_COLOR)
         author = canvas.create_text(
-            20, y+10, anchor=tk.NW, text=question['author'], font=font_author)
+            20, y+10, anchor=tk.NW, text=question['author'], font=AUTHOR_FONT, fill=FILL_COLOR)
         content = canvas.create_text(
-            20, y+box_height-10-20*num_lines, anchor=tk.NW, text=content_text, font=font_content)
+            20, y+box_height-10-20*num_lines, anchor=tk.NW, text=content_text, font=CONTENT_FONT, fill=FILL_COLOR)
         vote = canvas.create_text(
-            280, y+box_height-30, anchor=tk.NE, text=f"{question['vote']} votes", font=font_vote)
+            280, y+box_height-30, anchor=tk.NE, text=f"❤ {question['vote']}", font=VOTE_FONT, fill=FILL_COLOR)
 
         question['box'] = box
         question['author'] = author
