@@ -10,8 +10,6 @@ import tkinter as tk
 from tkinter import simpledialog
 import tkinter.font as tkFont
 
-from PIL import Image, ImageTk
-
 import textwrap
 
 root = tk.Tk()
