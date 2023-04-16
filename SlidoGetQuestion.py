@@ -18,17 +18,20 @@ root.attributes('-transparentcolor', 'green')
 MAX_QUESTIONS = 10
 
 BOX_WIDTH = 280
-BOX_HEIGHT = 50
+BOX_HEIGHT = 60
 BOX_FILL_COLOR = 'white'
 BOX_OUTLINE_COLOR = 'green'
 
+WINDOW_WIDTH = 300
+WINDOW_HEIGHT = 705
+
 font_author = tkFont.Font(family='Noto Sans TC', size=8)
-font_content = tkFont.Font(family='Noto Sans TC', size=12, weight='bold')
+font_content = tkFont.Font(family='微軟正黑體', size=12, weight='bold')
 font_vote = tkFont.Font(family='Noto Sans TC', size=12)
 
 current_questions = []
 
-canvas = tk.Canvas(root, width=300, height=705, bg='green')
+canvas = tk.Canvas(root, width=WINDOW_WIDTH, height=WINDOW_HEIGHT, bg='green')
 canvas.pack(fill=tk.BOTH, expand=tk.YES)
 
 
@@ -74,10 +77,7 @@ def update_questions():
 
     global current_questions
 
-    new_questions = get_questions(driver)
-
-    current_questions = new_questions + \
-        current_questions[:MAX_QUESTIONS-len(new_questions)]
+    current_questions = get_questions(driver)
 
     current_questions.reverse()
 
@@ -86,32 +86,37 @@ def update_questions():
         if 'box' in question_box:
             canvas.delete(question_box['box'])
 
+    y = 10  # 初始化y座標位置
+
     for i, question in enumerate(current_questions):
-        y = 10 + i * 70
+        content_lines = textwrap.wrap(question['content'], width=12)
+        num_lines = len(content_lines)
+        content_text = '\n'.join(content_lines)
 
-        if 'box' in question:
-            canvas.itemconfigure(question['author'], text=question['author'])
-            canvas.itemconfigure(question['text'], text=question['content'])
-            vote = question.get('vote', 0)
-            canvas.itemconfigure(
-                question['vote'], text=f'{vote} votes')
+        # 計算box的高度
+        box_height = 50 + 20 * num_lines
 
-        else:
-            box = canvas.create_rectangle(
-                10, y, 290, y+60, fill=BOX_FILL_COLOR, outline='green')
-            author = canvas.create_text(
-                20, y+10, anchor=tk.NW, text=question['author'], font=font_author)
-            content = canvas.create_text(
-                20, y+30, anchor=tk.NW, text=question['content'], font=font_content)
-            vote = canvas.create_text(
-                280, y+30, anchor=tk.NE, text=f"{question['vote']} votes", font=font_vote)
-            question['box'] = box
-            question['author'] = author
-            question['text'] = content
-            question['vote'] = vote
+        box = canvas.create_rectangle(
+            10, y, 10+BOX_WIDTH, y+box_height, fill=BOX_FILL_COLOR, outline='green')
+        author = canvas.create_text(
+            20, y+10, anchor=tk.NW, text=question['author'], font=font_author)
+        content = canvas.create_text(
+            20, y+box_height-10-20*num_lines, anchor=tk.NW, text=content_text, font=font_content)
+        vote = canvas.create_text(
+            280, y+box_height-30, anchor=tk.NE, text=f"{question['vote']} votes", font=font_vote)
+
+        question['box'] = box
+        question['author'] = author
+        question['text'] = content
+        question['vote'] = vote
+
+        # 更新y座標位置
+        y += box_height + 10  # 加上10像素的間距
+
+        if i == MAX_QUESTIONS - 1:
+            break
 
     current_questions.reverse()
-
     root.after(1500, update_questions)
 
 
@@ -121,9 +126,6 @@ chrome_options.add_argument('--headless')
 driver = webdriver.Chrome(options=chrome_options)
 
 driver.get('https://app.sli.do/event/fHCaUDHRvdDdVFAQt8ABnv/live/questions')
-
-# questions_text = tk.Text(root, width=50, height=20)
-# questions_text.pack()
 
 root.after(3000, update_questions)
 
