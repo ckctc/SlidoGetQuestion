@@ -21,6 +21,7 @@ BOX_WIDTH = 280
 BOX_HEIGHT = 60
 BOX_FILL_COLOR = 'white'
 BOX_OUTLINE_COLOR = 'green'
+BOX_SPACING = 10
 
 WINDOW_WIDTH = 300
 WINDOW_HEIGHT = 705
@@ -33,6 +34,12 @@ current_questions = []
 
 canvas = tk.Canvas(root, width=WINDOW_WIDTH, height=WINDOW_HEIGHT, bg='green')
 canvas.pack(fill=tk.BOTH, expand=tk.YES)
+
+chrome_options = Options()
+chrome_options.add_argument('--headless')
+driver = webdriver.Chrome(options=chrome_options)
+driver.implicitly_wait(5)
+driver.get('https://app.sli.do/event/fHCaUDHRvdDdVFAQt8ABnv/live/questions')
 
 
 def click_Recent_tab(driver):
@@ -75,25 +82,27 @@ def get_questions(driver):
 
 def update_questions():
 
+    canvas.delete(tk.ALL)
+
     global current_questions
 
     current_questions = get_questions(driver)
-
     current_questions.reverse()
 
     while len(current_questions) > MAX_QUESTIONS:
         question_box = current_questions.pop(0)
         if 'box' in question_box:
-            canvas.delete(question_box['box'])
+            box_id = question_box.pop('box')
+            canvas.delete(box_id)
 
-    y = 10  # 初始化y座標位置
+    y = 10
+    canvas_height = 0
 
     for i, question in enumerate(current_questions):
         content_lines = textwrap.wrap(question['content'], width=12)
         num_lines = len(content_lines)
         content_text = '\n'.join(content_lines)
 
-        # 計算box的高度
         box_height = 50 + 20 * num_lines
 
         box = canvas.create_rectangle(
@@ -110,22 +119,18 @@ def update_questions():
         question['text'] = content
         question['vote'] = vote
 
-        # 更新y座標位置
-        y += box_height + 10  # 加上10像素的間距
+        y += box_height + BOX_SPACING
+        canvas_height += box_height + BOX_SPACING
 
         if i == MAX_QUESTIONS - 1:
             break
 
     current_questions.reverse()
-    root.after(1500, update_questions)
+    canvas.configure(scrollregion=(0, 0, WINDOW_WIDTH,
+                     canvas_height + BOX_SPACING))
+    canvas.yview_moveto(1.0)
+    canvas.after(1500, update_questions)
 
-
-chrome_options = Options()
-chrome_options.add_argument('--headless')
-
-driver = webdriver.Chrome(options=chrome_options)
-
-driver.get('https://app.sli.do/event/fHCaUDHRvdDdVFAQt8ABnv/live/questions')
 
 root.after(3000, update_questions)
 
