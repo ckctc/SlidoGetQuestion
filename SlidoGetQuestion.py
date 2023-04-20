@@ -29,7 +29,7 @@ WINDOW_HEIGHT = 705
 FILL_COLOR = 'white'
 AUTHOR_FONT = tkFont.Font(family='微軟正黑體', size=8)
 CONTENT_FONT = tkFont.Font(family='微軟正黑體', size=12, weight='bold')
-VOTE_FONT = tkFont.Font(family='微軟正黑體', size=12)
+VOTE_FONT = tkFont.Font(family='jf-openhuninn-1.1', size=12)
 
 current_questions = []
 
@@ -113,9 +113,9 @@ def update_questions():
         author = canvas.create_text(
             20, y+10, anchor=tk.NW, text=question['author'], font=AUTHOR_FONT, fill=FILL_COLOR)
         content = canvas.create_text(
-            20, y+box_height-10-20*num_lines, anchor=tk.NW, text=content_text, font=CONTENT_FONT, fill=FILL_COLOR)
+            20, y+box_height-10-21*num_lines, anchor=tk.NW, text=content_text, font=CONTENT_FONT, fill=FILL_COLOR)
         vote = canvas.create_text(
-            280, y+box_height-30, anchor=tk.NE, text=f"❤ {question['vote']}", font=VOTE_FONT, fill=FILL_COLOR)
+            280, y+box_height-30, anchor=tk.NE, text=f"❤{question['vote']}", font=VOTE_FONT, fill=FILL_COLOR)
 
         question['box'] = box
         question['author'] = author
