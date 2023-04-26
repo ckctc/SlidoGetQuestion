@@ -21,7 +21,7 @@
 第一屆政大電影節規劃舉行特殊放映聊天場，使用Slido網站讓現場觀眾留言，因無法使用Slido API，故開發此應用爬取留言內容。
 
 
-## 用法
+## 用法 （示範畫面為v1.0.0）
 1. 下載並運行 SlidoGetQuestion.exe
 2. 於輸入框中輸入 Slido Event 的網址
 >![url.png](https://drive.google.com/uc?id=1uIbm7WzlhFiG6UfqUlTo2YGYgJCb4iCB)
