@@ -36,6 +36,8 @@
 3. 更改預設字型（目前因 Noto Sans TC 的 letterspacing 呈現上過於壅擠，故先使用微軟正黑體）
 4. 新增英文版README.md
 5. 優化程式效率及資源使用
+6. 測試MacOS環境
+7. 新增綁定「切換邊框模式熱鍵」之方式
 
 
 ## Maintainers
