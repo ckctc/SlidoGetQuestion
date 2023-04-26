@@ -12,28 +12,35 @@ import tkinter.font as tkFont
 
 import textwrap
 
+
 root = tk.Tk()
 root.title('Slido Questions')
+root.overrideredirect(False)
+
+
+BORDERLESS_HOTKEY = "<Control-Shift-C>"
 
 MAX_QUESTIONS = 10
 
 BOX_WIDTH = 280
 BOX_HEIGHT = 60
-BOX_FILL_COLOR = 'black'
-BOX_OUTLINE_COLOR = 'green'
+BOX_fill_COLOR = 'black'
+BOX_OUTLINE_COLOR = 'black'
 BOX_SPACING = 10
+RADIUS = 5
 
 WINDOW_WIDTH = 300
-WINDOW_HEIGHT = 705
+WINDOW_HEIGHT = 750
 
-FILL_COLOR = 'white'
+fill_COLOR = 'white'
 AUTHOR_FONT = tkFont.Font(family='微軟正黑體', size=8)
 CONTENT_FONT = tkFont.Font(family='微軟正黑體', size=12, weight='bold')
-VOTE_FONT = tkFont.Font(family='jf-openhuninn-1.1', size=12)
+VOTE_FONT = tkFont.Font(family='微軟正黑體', size=12)
+
 
 current_questions = []
 
-canvas = tk.Canvas(root, width=WINDOW_WIDTH, height=WINDOW_HEIGHT, bg='green')
+canvas = tk.Canvas(root, width=WINDOW_WIDTH, height=WINDOW_HEIGHT, bg='green', highlightthickness=0)
 canvas.pack(fill=tk.BOTH, expand=tk.YES)
 
 chrome_options = Options()
@@ -43,6 +50,19 @@ driver.implicitly_wait(5)
 
 url = simpledialog.askstring("Slido URL", "Enter the Slido URL:")
 driver.get(url)
+
+
+def on_keys_press(event):
+    HOTKEY = event.keysym
+    dialog_title = "Hotkey Setting"
+    diakog_text = "Press the hotkey you want to bind: "
+    HOTKEY = simpledialog.askstring(dialog_title, diakog_text)
+    root.focus_set()
+
+
+def toggle_borderless(event=None):
+    current_BorderState = root.overrideredirect()
+    root.overrideredirect(not current_BorderState)
 
 
 def click_Recent_tab(driver):
@@ -108,16 +128,29 @@ def update_questions():
 
         box_height = 50 + 20 * num_lines
 
-        box = canvas.create_rectangle(
-            10, y, 10+BOX_WIDTH, y+box_height, fill=BOX_FILL_COLOR, outline=BOX_OUTLINE_COLOR)
-        author = canvas.create_text(
-            20, y+10, anchor=tk.NW, text=question['author'], font=AUTHOR_FONT, fill=FILL_COLOR)
-        content = canvas.create_text(
-            20, y+box_height-10-21*num_lines, anchor=tk.NW, text=content_text, font=CONTENT_FONT, fill=FILL_COLOR)
-        vote = canvas.create_text(
-            280, y+box_height-30, anchor=tk.NE, text=f"❤{question['vote']}", font=VOTE_FONT, fill=FILL_COLOR)
+        x1, y1 = 10, y
+        x2, y2 = 10+BOX_WIDTH, y+box_height
+        arc = 2 * RADIUS
+        box_arc1 = canvas.create_arc(x1, y1, x1+arc, y1+arc, start=90, extent=90, fill=BOX_fill_COLOR, outline=BOX_OUTLINE_COLOR)
+        box_arc2 = canvas.create_arc(x2-arc, y1, x2, y1+arc, start=0, extent=90, fill=BOX_fill_COLOR, outline=BOX_OUTLINE_COLOR)
+        box_arc3 = canvas.create_arc(x1, y2-arc, x1+arc, y2, start=180, extent=90, fill=BOX_fill_COLOR, outline=BOX_OUTLINE_COLOR)
+        box_arc4 = canvas.create_arc(x2-arc, y2-arc, x2, y2, start=270, extent=90, fill=BOX_fill_COLOR, outline=BOX_OUTLINE_COLOR)
+        box_rectangle1 = canvas.create_rectangle(x1+RADIUS, y1, x2-RADIUS, y2, fill=BOX_fill_COLOR, outline=BOX_OUTLINE_COLOR)
+        box_rectangle2 = canvas.create_rectangle(x1, y1+RADIUS, x2, y2-RADIUS, fill=BOX_fill_COLOR, outline=BOX_OUTLINE_COLOR)
 
-        question['box'] = box
+        author = canvas.create_text(
+            20, y+10, anchor=tk.NW, text=question['author'], font=AUTHOR_FONT, fill=fill_COLOR)
+        content = canvas.create_text(
+            20, y+box_height-10-20*num_lines, anchor=tk.NW, text=content_text, font=CONTENT_FONT, fill=fill_COLOR)
+        vote = canvas.create_text(
+            280, y+box_height-30, anchor=tk.NE, text=f"❤ {question['vote']}", font=VOTE_FONT, fill=fill_COLOR)
+
+        question['box_arc1'] = box_arc1
+        question['box_arc2'] = box_arc2
+        question['box_arc3'] = box_arc3
+        question['box_arc4'] = box_arc4
+        question['box_rectangle1'] = box_rectangle1
+        question['box_rectangle2'] = box_rectangle2
         question['author'] = author
         question['text'] = content
         question['vote'] = vote
@@ -132,8 +165,10 @@ def update_questions():
     canvas.configure(scrollregion=(0, 0, WINDOW_WIDTH,
                      canvas_height + BOX_SPACING))
     canvas.yview_moveto(1.0)
-    canvas.after(1500, update_questions)
+    canvas.after(1000, update_questions)
 
+
+root.bind(BORDERLESS_HOTKEY, toggle_borderless)
 
 root.after(3000, update_questions)
 
